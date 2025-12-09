@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casimov IP | Asset Transfer Dossier</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Data Labels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'casimov-black': '#0a0a0a',
+                        'casimov-white': '#ffffff',
+                        'casimov-accent': '#111111',
+                    },
+                    fontFamily: {
+                        sans: ['"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                    animation: {
+                        'gradient-x': 'gradient-x 20s ease infinite',
+                    },
+                    keyframes: {
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            },
+                        },
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #333; }
+        
+        body {
+            font-feature-settings: "kern";
+            -webkit-font-smoothing: antialiased;
+            color: #000000;
+        }
+
+        .section-fade {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .section-fade.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* The "Spotlight" Typography - DEFAULT (Light Mode) */
+        .prose-text p {
+            margin-bottom: 1.25rem;
+            line-height: 1.5;
+            color: #1a1a1a;
+            font-weight: 400;
+            font-size: 1.1rem;
+        }
+        /* Subliminal Emphasis */
+        .prose-text strong {
+            font-weight: 800;
+            color: #000000;
+            letter-spacing: -0.01em;
+        }
+        .prose-text h3 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-top: 4rem;
+            margin-bottom: 1.5rem;
+            color: #000000;
+            border-bottom: 3px solid #000000;
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+        
+        /* Bullet Points: The "Fact" Rhythm */
+        .prose-text ul {
+            padding-left: 0;
+            margin-bottom: 2.5rem;
+        }
+        .prose-text li {
+            margin-bottom: 1rem;
+            padding-left: 2rem;
+            position: relative;
+            color: #1a1a1a;
+            font-weight: 500;
+            font-size: 1.15rem;
+        }
+        /* Custom Bullet: Visual Anchor */
+        .prose-text li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.6rem;
+            width: 8px;
+            height: 8px;
+            background: black;
+        }
+
+        /* Dark Mode Overrides for #offer Section */
+        #offer .prose-text p {
+            color: #e5e5e5 !important;
+        }
+        #offer .prose-text strong {
+            color: #ffffff !important;
+        }
+        #offer .prose-text h3 {
+            color: #ffffff !important;
+            border-bottom-color: #ffffff !important;
+        }
+        #offer .prose-text li {
+            color: #e5e5e5 !important;
+        }
+        #offer .prose-text li::before {
+            background: #ffffff !important;
+        }
+        
+        /* Containers */
+        .chart-container {
+            position: relative; 
+            height: 450px; 
+            width: 100%; 
+            margin: 3rem auto;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            padding: 1rem;
+        }
+
+        .dossier-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: contrast(1.05); 
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .dossier-img:hover {
+            transform: scale(1.01); 
+        }
+        .img-caption {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.75rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        /* Cinematic Gradient: The Mood Setter */
+        .cinematic-gradient {
+            background: linear-gradient(135deg, #050505 0%, #1a1a1a 50%, #050505 100%);
+            background-size: 300% 300%;
+            animation: gradient-anim 20s ease infinite;
+        }
+        
+        @keyframes gradient-anim {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Call to Action: The Illusion of Choice */
+        .cta-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .cta-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.1);
+            transition: all 0.3s ease;
+        }
+        .cta-btn:hover::after {
+            left: 0;
+        }
+    </style>
+
+    <!-- PRINT STYLESHEET (Clean A4) -->
+    <style media="print">
+        @page { size: A4 portrait; margin: 15mm; }
+        body { background: #fff !important; color: #000 !important; font-size: 10pt !important; }
+        #navbar, .section-fade .flex, footer a, header .absolute { display: none !important; }
+        header, section, footer { background: #fff !important; color: #000 !important; box-shadow: none !important; border: none !important; padding: 0 !important; margin: 0 !important; height: auto !important; min-height: 0 !important; }
+        h1 { font-size: 20pt !important; } h2 { font-size: 16pt !important; border-bottom: 2px solid #000; } h3 { font-size: 12pt !important; color: #000 !important; border-bottom-color: #000 !important; }
+        p, li { color: #000 !important; }
+        .grid-cols-1.md\:grid-cols-2 { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 1cm !important; }
+        .chart-container { height: 350px !important; border: 1px solid #ccc !important; page-break-inside: avoid; }
+        section { page-break-before: always; }
+        #market { page-break-before: auto; margin-top: 2cm; }
+        header .relative.z-10 { padding-top: 0 !important; color: #000 !important; }
+        .text-white, .text-gray-200 { color: #000 !important; }
+        .bg-black { background: transparent !important; border: 2px solid #000 !important; color: #000 !important; }
+        /* Reset overrides for print */
+        #offer .prose-text p, #offer .prose-text li, #offer .prose-text strong { color: #000 !important; }
+        #offer .prose-text h3 { color: #000 !important; border-bottom-color: #000 !important; }
+    </style>
+</head>
+<body class="bg-white text-black font-sans antialiased min-h-screen">
+
+    <!-- Navigation (Minimalist) -->
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 opacity-100 hover:opacity-80 transition-opacity duration-300">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe91-48db-7268-bd86-2f1206106543/logomv.png" alt="Casimov IP" class="h-16 w-auto">
+                </div>
+                <div class="hidden md:flex space-x-10">
+                    <a href="#market" class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-black transition-colors">The Void</a>
+                    <a href="#bio-product" class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-black transition-colors">The Fix</a>
+                    <a href="#economics" class="text-xs font-bold tracking-[0.2em] uppercase text-gray-500 hover:text-black transition-colors">The Scale</a>
+                    <a href="#offer" class="text-xs font-bold tracking-[0.2em] uppercase text-black border-b-2 border-black pb-1">The Asset</a>
+                </div>
+                <div>
+                    <a href="#contact" class="px-6 py-3 bg-black text-white text-xs font-bold tracking-[0.2em] uppercase hover:bg-gray-800 transition-colors cta-btn">
+                        Acquire
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section: The Hook -->
+    <header class="relative h-screen flex items-center justify-center overflow-hidden cinematic-gradient">
+        <!-- Heavy Overlay for Text Contrast -->
+        <div class="absolute inset-0 bg-black/60"></div>
+        <!-- Texture -->
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDMiLz4KPC9zdmc+')] opacity-20"></div>
+        
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto section-fade visible">
+            <p class="text-white font-bold tracking-[0.4em] uppercase mb-6 text-xs border border-white/50 inline-block px-4 py-2 bg-black/30 backdrop-blur-sm">
+                Confidential IP Dossier
+            </p>
+            <h1 class="text-6xl md:text-8xl font-bold mb-4 text-white leading-none tracking-tighter drop-shadow-2xl">
+                RECIPE NO. 7
+            </h1>
+            <p class="text-2xl text-gray-200 font-light mb-12 tracking-wide drop-shadow-md">
+                Universal Concert Rosin. <span class="text-white font-bold">Industrial Scale Ready.</span>
+            </p>
+            
+            <div class="flex flex-col md:flex-row justify-center gap-6">
+                <!-- Illusion of Choice: Both buttons lead deeper into the funnel -->
+                <a href="#offer" class="px-10 py-4 bg-white text-black font-bold tracking-widest uppercase text-xs hover:bg-gray-200 transition-colors shadow-2xl">
+                    Examine Asset
+                </a>
+                <a href="#market" class="px-10 py-4 border border-white text-white font-bold tracking-widest uppercase text-xs hover:bg-white/10 transition-colors backdrop-blur-sm">
+                    Validate Market
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Chapter 1: The Gap (Market) -->
+    <section id="market" class="py-24 bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="section-fade mb-16">
+                <span class="text-gray-400 font-bold tracking-widest uppercase text-xs block mb-4">01 | Market Reality</span>
+                <h2 class="text-5xl font-bold text-black tracking-tight mb-2">The Inefficiency.</h2>
+                <p class="text-xl text-gray-600">Where the money is currently being left on the table.</p>
+            </div>
+
+            <div class="prose-text section-fade">
+                <h3>1.1 The Volume</h3>
+                <p>The numbers represent recurring, non-negotiable consumption. Strings break. Bows degrade. Rosin oxidizes.</p>
+                <ul>
+                    <li><strong>Global Active Musicians:</strong> ~293.7 Million.</li>
+                    <li><strong>String Player Segment:</strong> ~29.8 Million (The captive audience).</li>
+                    <li><strong>Annual Unit Demand:</strong> ~15.4 Million cakes/year.</li>
+                    <li><strong>Market Valuation:</strong> $250M USD/year (Recurring).</li>
+                </ul>
+
+                <!-- Chart: Instrument Dist -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">Global Addressable Market (Musicians)</h4>
+                <div class="chart-container shadow-none border-l-4 border-black">
+                    <canvas id="instrumentDistChart"></canvas>
+                </div>
+
+                <h3>1.2 The Vacuum</h3>
+                <p>The current market (Tier 1-3) is failing the modern professional in three specific ways:</p>
+                <ul>
+                    <li><strong>The Climate Fail:</strong> Players are forced to buy separate "Summer" and "Winter" inventory.</li>
+                    <li><strong>The Audio Fail:</strong> High-grip rosins create "surface noise," rendering them useless for modern microphones.</li>
+                    <li><strong>The Pricing Fail:</strong> A massive void exists at €35.00—between the €20 mass-market cheapware and the €60 boutique tax.</li>
+                </ul>
+
+                <!-- Chart: Tier Share -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">Global Revenue by Tier</h4>
+                <div class="chart-container shadow-none border-l-4 border-black">
+                    <canvas id="tierShareChart"></canvas>
+                </div>
+
+                <div class="mt-10 p-8 bg-gray-50 border-l-4 border-black">
+                    <p class="mb-0 font-bold text-lg">
+                        Fact: The market craves a Universal, Studio-Grade product at the Mid-High price point. It does not exist. We built it.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 2: The Fix (Bio & Product) -->
+    <section id="bio-product" class="py-24 bg-gray-50">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="section-fade mb-16">
+                <span class="text-gray-400 font-bold tracking-widest uppercase text-xs block mb-4">02 | Authority & Solution</span>
+                <h2 class="text-5xl font-bold text-black tracking-tight mb-2">The Architecture.</h2>
+                <p class="text-xl text-gray-600">Why a chemist couldn't solve this.</p>
+            </div>
+
+            <div class="prose-text section-fade">
+                <!-- Bio Condensed -->
+                <h3>2.1 The Unfair Advantage</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b363-7333-ae6f-500b60f058ad/5_portrait_of_eugeniu_casimov_main.jpg" alt="Eugeniu Casimov" class="dossier-img">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b364-7581-b0ef-f42e72b8e4a7/6_portrait_of_eugeniu_casimov_professional_with_violin.jpg" alt="Bow Making" class="dossier-img">
+                </div>
+
+                <p>I am Eugeniu Casimov. I hold the keys to both sides of the equation.</p>
+                <ul>
+                    <li><strong>20 Years on Stage:</strong> Opera & Chamber performance in Europe's elite hubs.</li>
+                    <li><strong>Master Luthier-Archetier (2013):</strong> I engineer the physics of the bow itself.</li>
+                    <li><strong>The Insight:</strong> Chemists don't perform. Performers don't engineer. I do both.</li>
+                </ul>
+
+                <!-- Product -->
+                <h3>2.2 The Solution: Formula 7</h3>
+                <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b2f3-778b-b073-30ff70713af5/4_bunch_of_rosins.jpg" alt="R&D Batches" class="dossier-img mb-8 grayscale hover:grayscale-0 transition-all duration-500">
+
+                <p>This was not luck. It was an industrial siege.</p>
+                <ul>
+                    <li><strong>Scope:</strong> 50+ raw resins tested globally. 29 prototypes rejected.</li>
+                    <li><strong>The Result:</strong> A 4-resin hybrid blend.</li>
+                    <li><strong>The Breakthrough:</strong> <strong>Universal Stability.</strong> No summer version. No winter version. One SKU. Global application.</li>
+                </ul>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 mt-8">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b2ef-77ca-b8c9-2063b3b5649a/2_opened_rosin.jpg" alt="Texture" class="dossier-img">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b2ef-7368-ba9a-d81ee96e2113/3_opened_rosin_from_side.jpg" alt="Clarity" class="dossier-img">
+                </div>
+
+                <h3>2.3 Performance KPIs</h3>
+                <ul>
+                    <li><strong>Audiophile Silence:</strong> Zero surface noise. Studio ready.</li>
+                    <li><strong>Minimal Dust:</strong> Hypoallergenic. Varnish safe.</li>
+                    <li><strong>Validation:</strong> Pre-orders confirmed by major distribution networks (Value: €1M+).</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 3: The Scale (Economics) -->
+    <section id="economics" class="py-24 bg-white">
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="section-fade mb-16">
+                <span class="text-gray-400 font-bold tracking-widest uppercase text-xs block mb-4">03 | Unit Economics</span>
+                <h2 class="text-5xl font-bold text-black tracking-tight mb-2">The Multiplier.</h2>
+                <p class="text-xl text-gray-600">Engineered for high-margin dominance.</p>
+            </div>
+
+            <div class="prose-text section-fade">
+                <h3>3.1 The Golden Unit</h3>
+                <p>We target the vacuum. We own the mid-high tier.</p>
+                <ul>
+                    <li><strong>Product:</strong> 25g Cake.</li>
+                    <li><strong>RRP:</strong> €35.00.</li>
+                    <li><strong>Net Revenue:</strong> ~€28.93 (ex-VAT).</li>
+                </ul>
+                
+                <!-- Chart: Cost Breakdown -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">Unit Profit Analysis (Scenario A)</h4>
+                <div class="chart-container shadow-none border-l-4 border-black">
+                    <canvas id="costBreakdownChart"></canvas>
+                </div>
+
+                <h3>3.2 Margin resilience</h3>
+                <p>Even under stress tests, the profit model holds.</p>
+                <ul>
+                    <li><strong>Best Case:</strong> €17.35 Net Profit/unit (~60% Margin).</li>
+                    <li><strong>Standard Case:</strong> €15.35 Net Profit/unit.</li>
+                    <li><strong>Worst Case:</strong> €3.35 Net Profit/unit (Maximum stress test).</li>
+                </ul>
+
+                <h3>3.3 The Scale</h3>
+                <!-- Chart: Scaling -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">Revenue Projection (Net Income)</h4>
+                <div class="chart-container shadow-none border-l-4 border-black">
+                    <canvas id="revenueScalingChart"></canvas>
+                </div>
+                <p>The logic is linear and scalable:</p>
+                <ul>
+                    <li><strong>10k Units:</strong> €173,500 Net.</li>
+                    <li><strong>100k Units:</strong> €1,735,000 Net.</li>
+                    <li><strong>1M Units:</strong> €17,350,000 Net.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chapter 4: The Asset (Offer) -->
+    <section id="offer" class="py-24 bg-black text-white relative overflow-hidden">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/80 z-0"></div>
+        <!-- Texture -->
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjZmZmIiBmaWxsLW9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-30 z-0"></div>
+
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <div class="section-fade mb-16 text-center">
+                <span class="text-gray-500 font-bold tracking-widest uppercase text-xs block mb-4">04 | Acquisition</span>
+                <h2 class="text-5xl font-bold text-white tracking-tight mb-6">The Transfer.</h2>
+                <div class="w-24 h-1 bg-white mx-auto"></div>
+            </div>
+
+            <div class="prose-text text-gray-300 section-fade">
+                
+                <div class="mb-12 border border-white/20 p-2">
+                    <img src="https://f.playcode.io/p-2630017/v-1/019afe6f-b2f3-71d7-a161-5d47f3c3d557/1_rosin_original_package_with_logo.jpg" alt="The Asset" class="dossier-img grayscale hover:grayscale-0 transition-all duration-700">
+                </div>
+
+                <!-- High Contrast Text Overrides via CSS -->
+                <h3 class="text-white border-white">4.1 The Asset Package</h3>
+                <p class="text-gray-300">I am not selling a concept. I am selling a validated revenue stream.</p>
+                <ul>
+                    <li><strong>Master Formula:</strong> The precise chemical ratios of Recipe No. 7.</li>
+                    <li><strong>Industrial Methodology:</strong> The "Cooking Steps" (Heat curves, mixing order).</li>
+                    <li><strong>Supply Intelligence:</strong> Exclusive sourcing data for the 4 component resins.</li>
+                    <li><strong>Consultancy:</strong> Transitional support for industrial replication.</li>
+                </ul>
+
+                <h3 class="text-white border-white">4.2 Rights & Scope</h3>
+                <ul>
+                    <li><strong>Territory:</strong> Worldwide. Perpetuity.</li>
+                    <li><strong>Scope:</strong> Violin, Viola, Cello, Gamba.</li>
+                    <li><strong>Branding:</strong> You own the formula. You brand it (White Label or New Brand).</li>
+                </ul>
+
+                <h3 class="text-white border-white">4.3 The Valuation</h3>
+                
+                <div class="border border-white/30 p-10 my-10 text-center bg-white/5 backdrop-blur-sm">
+                    <div class="text-xs tracking-[0.3em] uppercase text-gray-400 mb-4">Pricing Structure</div>
+                    <div class="text-3xl font-bold text-white mb-2">Based on Revenue Multipliers</div>
+                    <div class="text-sm text-gray-500 italic">Eliminating 5 Years of R&D Risk.</div>
+                </div>
+
+                <p>You are buying time. You are buying a finished product. You are buying the ability to enter the market tomorrow.</p>
+                
+                <div class="mt-16 text-center">
+                    <p class="text-white font-bold mb-6 text-lg tracking-wide">Formalize the Interest.</p>
+                    <a href="mailto:screpach@me.com" class="inline-block px-12 py-5 bg-white text-black font-bold tracking-[0.2em] uppercase hover:bg-gray-200 transition-colors">
+                        Request Term Sheet
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contact" class="bg-white border-t border-gray-100 py-16">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <p class="text-black font-bold tracking-widest uppercase text-xs mb-8">
+                Eugeniu Casimov | Master Luthier-Archetier
+            </p>
+            
+            <div class="flex flex-col md:flex-row justify-center items-center gap-8 mb-16 text-sm font-medium text-gray-600">
+                <a href="mailto:screpach@me.com" class="hover:text-black transition-colors">screpach@me.com</a>
+                <span class="hidden md:inline text-gray-300">|</span>
+                <a href="tel:+34653052833" class="hover:text-black transition-colors">+34 653 052 833</a>
+            </div>
+
+            <div class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
+                &copy; 2025 Casimov IP. Confidential.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Register DataLabels Plugin
+            Chart.register(ChartDataLabels);
+
+            // Chart Configuration: Monochrome Professionalism
+            Chart.defaults.font.family = '"Helvetica Neue", Helvetica, Arial, sans-serif';
+            Chart.defaults.color = '#000';
+            Chart.defaults.scale.grid.color = 'transparent'; // Clean look
+
+            // 1. Cost Breakdown - Detailed External Labels
+            new Chart(document.getElementById('costBreakdownChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Net Profit', 'Marketing', 'VAT', 'Packaging', 'Materials'],
+                    datasets: [{ 
+                        data: [17.35, 10.08, 6.07, 1.00, 0.50], 
+                        backgroundColor: ['#000000', '#333333', '#666666', '#999999', '#cccccc'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: 80 }, // Large padding for external labels
+                    cutout: '55%',
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: {
+                            color: '#000',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value, ctx) => {
+                                let label = ctx.chart.data.labels[ctx.dataIndex];
+                                let percent = ((value / 35) * 100).toFixed(1) + '%';
+                                return label + '\n€' + value.toFixed(2) + ' (' + percent + ')';
+                            },
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 15,
+                            textAlign: 'left' // Align text block
+                        }
+                    }
+                }
+            });
+
+            // 2. Revenue Scaling - Explicit Points
+            new Chart(document.getElementById('revenueScalingChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Start', '10k Units', '100k Units', '1M Units'],
+                    datasets: [{
+                        label: 'Net Income (€)',
+                        data: [0, 173500, 1735000, 17350000],
+                        borderColor: '#000', backgroundColor: '#000',
+                        tension: 0,
+                        borderWidth: 2, pointRadius: 5, pointBackgroundColor: '#000'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { top: 30, right: 30, left: 10, bottom: 10 } },
+                    plugins: { 
+                        legend: { display: false },
+                        datalabels: {
+                            align: 'top',
+                            anchor: 'end',
+                            formatter: (value) => {
+                                if (value === 0) return '';
+                                if (value >= 1000000) return '€' + (value/1000000).toFixed(2) + 'M';
+                                return '€' + (value/1000).toFixed(0) + 'k';
+                            },
+                            font: { weight: 'bold', size: 12 },
+                            color: '#000',
+                            offset: 8
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true, 
+                            ticks: { callback: v => '€' + v/1000000 + 'M', font: {size: 10} },
+                            grid: { color: '#f5f5f5' }
+                        },
+                        x: { 
+                            grid: { display: false },
+                            ticks: { font: { weight: 'bold' } }
+                        }
+                    }
+                }
+            });
+
+            // 3. Instrument Dist - Horizontal Bar for readability
+            new Chart(document.getElementById('instrumentDistChart'), {
+                type: 'bar',
+                indexAxis: 'y',
+                data: {
+                    labels: ['Violin', 'Cello', 'Viola', 'Bass'],
+                    datasets: [{
+                        label: 'Market Share %',
+                        data: [65, 20, 10, 5],
+                        backgroundColor: ['#000000', '#333333', '#666666', '#999999'],
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: { padding: { right: 50 } },
+                    plugins: { 
+                        // Enable and configure the legend
+                        legend: { 
+                            display: true, 
+                            position: 'top', 
+                            align: 'start',
+                            labels: {
+                                boxWidth: 15,
+                                padding: 15,
+                                font: { weight: 'bold' },
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const ds = data.datasets[0];
+                                            return {
+                                                text: label,
+                                                fillStyle: ds.backgroundColor[i],
+                                                strokeStyle: ds.backgroundColor[i],
+                                                lineWidth: 0,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#000',
+                            anchor: 'end',
+                            align: 'end',
+                            formatter: (value) => value + '%',
+                            font: { weight: 'bold', size: 12 },
+                            offset: 4
+                        }
+                    },
+                    scales: { 
+                        x: { display: false }, 
+                        y: { 
+                            display: false, // Hide Y-axis labels as they are in the legend now
+                            grid: { display: false }
+                        } 
+                    }
+                }
+            });
+
+            // 4. Tier Share - Exploded View
+            new Chart(document.getElementById('tierShareChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Premium (Tier 1-2)', 'Workhorse (Tier 3)', 'Student (Tier 4-5)'],
+                    datasets: [{
+                        data: [25, 45, 30],
+                        backgroundColor: ['#000000', '#666666', '#cccccc'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '55%',
+                    layout: { padding: 40 },
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            position: 'bottom',
+                            labels: { padding: 30, boxWidth: 15, font: { weight: 'bold' } } // Increased padding
+                        },
+                        datalabels: {
+                            color: '#000',
+                            font: { weight: 'bold', size: 12 },
+                            formatter: (value, ctx) => {
+                                // Keep concise since legend exists
+                                return value + '%'; 
+                            },
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 5
+                        }
+                    }
+                }
+            });
+            
+            // Fade In Observer
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.section-fade').forEach((section) => observer.observe(section));
+        });
+    </script>
+</body>
+</html>
