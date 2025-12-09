@@ -339,8 +339,14 @@
                     <li><strong>Market Valuation:</strong> $250M USD/year (Recurring).</li>
                 </ul>
 
-                <!-- Chart: Instrument Dist -->
-                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">Global Addressable Market (Musicians)</h4>
+                <!-- Chart: Geographic Dist - Percentages added to segments + Legend enabled -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">GEOGRAPHIC TARGET MARKET (MUSICIANS)</h4>
+                <div class="chart-container shadow-none border-l-4 border-black">
+                    <canvas id="geographicMarketChart"></canvas>
+                </div>
+
+                <!-- Chart: Instrument Dist - Right Padding increased to fix clipping -->
+                <h4 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mt-8">GLOBAL ADDRESSABLE MARKET (INSTRUMENT)</h4>
                 <div class="chart-container shadow-none border-l-4 border-black">
                     <canvas id="instrumentDistChart"></canvas>
                 </div>
@@ -601,7 +607,7 @@
             // Detect if Mobile for Chart Tweaks
             const isMobile = window.innerWidth < 768;
 
-            // 1. Cost Breakdown - FIXED: Moved labels to Legend to prevent overlap
+            // 1. Cost Breakdown
             new Chart(document.getElementById('costBreakdownChart'), {
                 type: 'doughnut',
                 data: {
@@ -630,11 +636,11 @@
                                 generateLabels: function(chart) {
                                     const data = chart.data;
                                     if (data.labels.length && data.datasets.length) {
+                                        const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
                                         return data.labels.map((label, i) => {
                                             const meta = chart.getDatasetMeta(0);
                                             const style = meta.controller.getStyle(i);
                                             const value = data.datasets[0].data[i];
-                                            const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
                                             const percentage = ((value / total) * 100).toFixed(1) + '%';
                                             
                                             return {
@@ -703,14 +709,66 @@
                 }
             });
 
-            // 3. Instrument Dist
+            // 3. Geographic Target Market (Percentages added to segments + Legend enabled)
+            new Chart(document.getElementById('geographicMarketChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        'China (10.6M)', 
+                        'Europe (8.0M)', 
+                        'USA (4.1M)', 
+                        'S. America (2.0M)', 
+                        'Rest (5.1M)'
+                    ],
+                    datasets: [{
+                        data: [10.6, 8.0, 4.1, 2.0, 5.1],
+                        // Using a monochrome scheme to match the dossier style
+                        backgroundColor: ['#000000', '#333333', '#666666', '#999999', '#cccccc'],
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%', // Create the doughnut appearance
+                    layout: { padding: isMobile ? 10 : 40 },
+                    plugins: { 
+                        legend: { 
+                            display: true, // Legend is enabled
+                            position: isMobile ? 'bottom' : 'right',
+                            labels: { 
+                                padding: 20, 
+                                boxWidth: 15, 
+                                font: { weight: 'bold', size: isMobile ? 10 : 12 } 
+                            }
+                        },
+                        // Datalabels added inside segments
+                        datalabels: { 
+                            color: '#ffffff', // White text for contrast
+                            font: { weight: 'bold', size: 14 },
+                            formatter: (value, context) => {
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                // Ensure only segments 5% and larger show a label to prevent crowding
+                                const percentage = (value / total * 100);
+                                if (percentage < 5) return ''; 
+                                return percentage.toFixed(0) + '%';
+                            },
+                            anchor: 'center', // Position in the center of the arc
+                            align: 'center'
+                        }
+                    }
+                }
+            });
+
+            // 4. Instrument Dist (Right Padding increased to fix clipping)
             new Chart(document.getElementById('instrumentDistChart'), {
                 type: 'bar',
-                indexAxis: 'y',
+                indexAxis: 'y', // Set to 'y' for horizontal bars
                 data: {
                     labels: ['Violin', 'Cello', 'Viola', 'Bass'],
                     datasets: [{
-                        label: 'Market Share %',
+                        // No label needed as per the screenshot example
                         data: [65, 20, 10, 5],
                         backgroundColor: ['#000000', '#333333', '#666666', '#999999'],
                         barThickness: isMobile ? 20 : 40
@@ -719,35 +777,62 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    layout: { padding: { right: isMobile ? 30 : 50 } },
+                    // INCREASED PADDING RIGHT to prevent percentage labels from clipping
+                    layout: { padding: { right: isMobile ? 20 : 30, left: 20 } }, 
                     plugins: { 
                         legend: { 
-                            display: true, 
-                            position: 'top', 
-                            align: 'start',
+                            display: true, // Legend enabled
+                            position: 'bottom',
                             labels: {
+                                padding: 20,
                                 boxWidth: 15,
-                                padding: 15,
-                                font: { weight: 'bold', size: isMobile ? 10 : 12 }
+                                font: { weight: 'bold', size: isMobile ? 10 : 12 },
+                                // Custom generator to show a legend item for each BAR (category)
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.labels.map((label, i) => {
+                                            const ds = data.datasets[0];
+                                            return {
+                                                text: label,
+                                                fillStyle: ds.backgroundColor[i],
+                                                strokeStyle: ds.backgroundColor[i],
+                                                lineWidth: 0,
+                                                hidden: false,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
                             }
                         },
                         datalabels: {
-                            color: '#000',
+                            color: '#ffffff', // Changed to white for contrast inside the bar
+                            // Anchor is 'end' (right side of the data point)
                             anchor: 'end',
-                            align: 'end',
+                            // Align is 'start' (text positioned left of the anchor point, inside the bar)
+                            align: 'start', 
                             formatter: (value) => value + '%',
-                            font: { weight: 'bold', size: 12 },
-                            offset: 4
+                            font: { weight: 'bold', size: 14 }, 
+                            offset: 8 // Ensures space between bar end and percentage
                         }
                     },
                     scales: { 
-                        x: { display: false }, 
-                        y: { display: false, grid: { display: false } } 
+                        x: { display: false }, // Hide X-axis
+                        y: { 
+                            grid: { display: false }, // Hide Y-axis grid lines
+                            ticks: { 
+                                font: { weight: 'bold', size: 12 },
+                                color: '#000',
+                                padding: 10
+                            }
+                        } 
                     }
                 }
             });
 
-            // 4. Tier Share
+            // 5. Tier Share
             new Chart(document.getElementById('tierShareChart'), {
                 type: 'doughnut',
                 data: {
@@ -782,8 +867,7 @@
                 }
             });
 
-            // 5. NEW CHART: Performance Comparison Matrix (Radar)
-            // Replicates the "Spider" Chart from the screenshot
+            // 6. Performance Comparison Matrix (Radar)
             new Chart(document.getElementById('performanceMatrixChart'), {
                 type: 'radar',
                 data: {
